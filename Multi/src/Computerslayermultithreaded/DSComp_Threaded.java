@@ -1,30 +1,36 @@
-package Computing;
+package Computerslayermultithreaded;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
-public class computinglayar {
-    public static void main(String[] args)
-    { Scanner sc = new Scanner(System.in);
+class ClientHandler implements Runnable
+{
+
+    Socket s;
+    Socket s1;
+    
+
+    public ClientHandler(Socket s,Socket s1)
+    {
+        this.s = s;
+        this.s1 = s1;
+    }
+
+    @Override
+    public void run()
+    {
         try
         {
-            //1.create socket and connect to the server
-            //with IP:127.0.0.1(localhost)
-            //and with portnumber: 1234
-            Socket s1 = new Socket("127.0.0.1", 1234);
-            //. Create I/O streams as client to the server
+            //3.create I/O streams
+    //. Create I/O streams as client to the server
             DataInputStream dis1 = new DataInputStream(s1.getInputStream());
             DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
              //create socket and connect as server to the client
             //and with portnumber: 1230
-            ServerSocket sv1 = new ServerSocket(1230);
-            System.out.println("Server Running...");
-            Socket s = sv1.accept();
-            System.out.println("Client Accepted...");
+           
              //.create I/O with cumputing
              DataInputStream dis = new DataInputStream(s.getInputStream());
              DataOutputStream dos = new DataOutputStream(s.getOutputStream());   
@@ -70,15 +76,51 @@ public class computinglayar {
             }
             dis1.close();
             dos1.close();
-            s1.close();
+           
             dis.close();
             dos.close();
             s.close();
-            sv1.close();
+           s1.close();
         }
           catch (IOException ex)
         {
             System.out.println(ex.getMessage());
         }
     }
+}
+
+public class DSComp_Threaded
+{
+
+    public static void main(String[] args)
+    {
+        try
+        {
+            //1.open server socket
+            ServerSocket sv = new ServerSocket(1230);
+             Socket s1 = new Socket("127.0.0.1", 1234);
+            //. Create I/O streams as client to the server
+          //  DataInputStream dis1 = new DataInputStream(s1.getInputStream());
+            //DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
+            System.out.println("Server Running...");
+            while (true)
+            {
+                //2.accept connection
+                Socket s = sv.accept();
+                System.out.println("Client Accepted...");
+                //3. open thread for this client (s)
+                ClientHandler ch = new ClientHandler(s,s1);
+                Thread t = new Thread(ch);
+                t.start();
+
+            }
+
+            //6.close server
+            
+        } catch (IOException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+    }
+
 }

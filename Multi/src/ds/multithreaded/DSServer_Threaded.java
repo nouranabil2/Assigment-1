@@ -1,31 +1,31 @@
-package server;
-
+package ds.multithreaded;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
-public class DSServer
+class Computinghandler implements Runnable
 {
 
-    public static void main(String[] args)
+    Socket s;
+
+    public Computinghandler(Socket s)
+    {
+        this.s = s;
+    }
+
+    @Override
+    public void run()
     {
         try
         {
-           
-            //1.open server socket
-            ServerSocket sv = new ServerSocket(1234);
-            System.out.println("Server Running...");
-            
-                //2.accept connection
-                Socket s = sv.accept();
-                System.out.println("Client Accepted...");
-                //3.create I/O with cumputing
-                 DataInputStream dis = new DataInputStream(s.getInputStream());
+            //3.create I/O streams
+            DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-             while (true)
+
+            //4.perform IO with client
+            while (true)
             {
                 dos.writeUTF("Please enter your current location");
                 dos.flush();
@@ -58,7 +58,39 @@ public class DSServer
              dis.close();
             dos.close();
             s.close();
-            sv.close();
+            
+        } catch (IOException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+}
+
+public class DSServer_Threaded
+{
+
+    public static void main(String[] args)
+    {
+        try
+        {
+            //1.open server socket
+            ServerSocket sv = new ServerSocket(1234);
+            System.out.println("Server Running...");
+            while (true)
+            {
+                //2.accept connection
+                Socket s = sv.accept();
+                System.out.println("Client Accepted...");
+                //3. open thread for this client (s)
+                Computinghandler ch = new Computinghandler(s);
+                Thread t = new Thread(ch);
+                t.start();
+
+            }
+
+            //6.close server
+            //sv.close();
         } catch (IOException ex)
         {
             System.out.println(ex.getMessage());

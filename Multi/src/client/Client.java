@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 
-public class DSClient
+public class Client
 {
 
     public static void main(String[] args)
